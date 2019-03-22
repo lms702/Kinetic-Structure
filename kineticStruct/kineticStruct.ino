@@ -21,19 +21,21 @@ void loop() {
   unsigned int elapsed = 1001;
   unsigned long int lastTime = 0;
   while (true) {
-    //Serial.println(analogRead(A0));
     if (flag) {
+      noInterrupts();
       checkButton(lightOn);
+      lastTime = millis();
+      spikes = 0;
+      flag = 0;
+      interrupts();
     }
-    if(millis()-lastTime > 1000) {
-      Serial.println(millis() - lastTime);
+    if(millis()-lastTime > 100) {
+      Serial.println(spikes);
       if(spikes > 10) {
-        digitalWrite(8, HIGH);
         music = 1;
       }
       else {
         music = 0;
-        digitalWrite(8, LOW);
       }
       spikes = 0; 
       lastTime = millis();
@@ -43,29 +45,31 @@ void loop() {
         spikes++;
       }
     }
+    if(lightOn && music) {
+      digitalWrite(3, HIGH);
+    }
+    else {
+      digitalWrite(3, LOW);
+    }
   }
 }
 void bop() {
      flag = 1;
  }
 void checkButton(bool &lightOn) {
-      noInterrupts();
       if(digitalRead(button) == 0) {
         delay(15);
         if(digitalRead(button) == 0){
           while(digitalRead(button) == 0){}
           if(lightOn) {
             digitalWrite(8, LOW);
-            digitalWrite(3, LOW);
             lightOn = 0;
             }
           else {
             digitalWrite(8, HIGH);
-            digitalWrite(3, HIGH);
             lightOn = 1;
             }
           }
-      interrupts();
       flag = 0;
       }
       return;
